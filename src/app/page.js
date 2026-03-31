@@ -1,65 +1,124 @@
-import Image from "next/image";
+"use client";
+
+import { useState } from "react";
+import { useRouter } from "next/navigation";
+import { supabase } from "@/lib/supabase";
 
 export default function Home() {
+  const router = useRouter();
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [name, setName] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState("");
+
+  const handleOpenModal = () => {
+    setError("");
+    setIsModalOpen(true);
+  };
+
+  const handleCloseModal = () => {
+    if (isLoading) return;
+    setIsModalOpen(false);
+    setError("");
+  };
+
+  const handleSubmit = async () => {
+    const trimmedName = name.trim();
+
+    if (!trimmedName) {
+      setError("Önce adını yazmayı unutma olur mu?");
+      return;
+    }
+
+    try {
+      setIsLoading(true);
+      setError("");
+
+      const { error: supabaseError } = await supabase
+        .from("students")
+        .insert({ name: trimmedName });
+
+      if (supabaseError) {
+        setError("Ufak bir sorun çıktı, tekrar dener misin?");
+        setIsLoading(false);
+        return;
+      }
+
+      localStorage.setItem("studentName", trimmedName);
+      router.push(`/dashboard?name=${encodeURIComponent(trimmedName)}`);
+    } catch (e) {
+      setError("Ufak bir sorun çıktı, tekrar dener misin?");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   return (
-    <div className="flex min-h-screen items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex min-h-screen w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.js file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
+    <main className="flex min-h-screen items-center justify-center bg-yellow-50">
+      <div className="max-w-xl w-full px-6 py-12 text-center">
+        <div className="mb-6 flex justify-center">
+          <div className="h-20 w-20 rounded-full bg-orange-200 flex items-center justify-center shadow-sm">
+            <span className="text-4xl">🏝️</span>
+          </div>
         </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
+
+        <h1 className="text-4xl md:text-5xl font-extrabold tracking-tight text-blue-700 mb-4">
+          Benim Alanım&apos;a Hoş Geldin!
+        </h1>
+
+        <p className="text-lg md:text-xl text-blue-900/80 mb-8">
+          Burada güven, dostluk ve mahremiyet hakkında eğlenceli maceralara çıkacaksın.
+          Hazırsan, renkli bir yolculuk seni bekliyor!
+        </p>
+
+        <button
+          className="inline-flex items-center justify-center px-10 py-4 text-lg md:text-xl font-extrabold rounded-full bg-orange-400 text-white shadow-lg hover:bg-orange-500 hover:shadow-xl active:scale-95 transition-transform transition-shadow duration-200"
+          onClick={handleOpenModal}
+        >
+          Maceraya Başla!
+        </button>
+      </div>
+
+      {isModalOpen && (
+        <div className="fixed inset-0 flex items-center justify-center bg-black/10 backdrop-blur-sm z-50">
+          <div className="w-full max-w-md mx-4 rounded-3xl bg-white shadow-xl p-8 text-center relative">
+            <button
+              className="absolute right-4 top-4 text-gray-400 hover:text-gray-600 text-sm"
+              onClick={handleCloseModal}
+              disabled={isLoading}
+              aria-label="Kapat"
+            >
+              ✕
+            </button>
+
+            <h2 className="text-2xl md:text-3xl font-extrabold text-blue-700 mb-4">
+              Merhaba Arkadaşım! Adın Nedir?
+            </h2>
+
+            <input
+              type="text"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              placeholder="Adını buraya yaz :)"
+              className="w-full mt-4 rounded-2xl border-2 border-yellow-200 bg-yellow-50/60 px-4 py-3 text-lg outline-none focus:border-yellow-300 focus:ring-2 focus:ring-yellow-200 transition"
             />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
+
+            {error && (
+              <p className="mt-3 text-sm text-red-500">
+                {error}
+              </p>
+            )}
+
+            <button
+              className="mt-6 inline-flex items-center justify-center w-full px-6 py-3 text-lg font-extrabold rounded-full bg-green-400 text-white shadow-md hover:bg-green-500 hover:shadow-lg active:scale-95 transition-transform transition-shadow duration-200 disabled:opacity-70 disabled:cursor-not-allowed"
+              onClick={handleSubmit}
+              disabled={isLoading}
+            >
+              {isLoading ? "Bekle, hazırlanıyoruz..." : "Hadi Gidelim!"}
+            </button>
+          </div>
         </div>
-      </main>
-    </div>
+      )}
+    </main>
   );
 }
