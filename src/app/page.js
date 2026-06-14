@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase";
@@ -56,10 +57,15 @@ export default function Home() {
   return (
     <main className="flex min-h-screen items-center justify-center bg-yellow-50">
       <div className="max-w-xl w-full px-6 py-12 text-center">
-        <div className="mb-6 flex justify-center">
-          <div className="h-20 w-20 rounded-full bg-orange-200 flex items-center justify-center shadow-sm">
-            <span className="text-4xl">🏝️</span>
-          </div>
+        <div className="mb-6 flex items-center justify-center">
+          <Image
+            src="/bulut.png"
+            alt="Bulut"
+            width={140}
+            height={120}
+            className="h-auto w-[140px] object-contain"
+            priority
+          />
         </div>
 
         <h1 className="text-4xl md:text-5xl font-extrabold tracking-tight text-blue-700 mb-4">
