@@ -360,6 +360,22 @@ export default function OzelAlanimOyun2Page() {
 
   const handleStartLevel3 = useCallback(() => {
     localStorage.setItem("seviye3Acik", "true");
+    localStorage.setItem("studentLevel", "3");
+
+    // Supabase'deki level'ı da güncelle
+    const studentId = localStorage.getItem("studentId");
+    if (studentId) {
+      import("@/lib/supabase").then(({ supabase }) => {
+        supabase
+          .from("students")
+          .update({ level: 3 })
+          .eq("id", studentId)
+          .then(({ error }) => {
+            if (error) console.error("Level 3 sync error:", error);
+          });
+      });
+    }
+
     router.push("/dashboard");
   }, [router]);
 

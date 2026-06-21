@@ -4,8 +4,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useRef, useState } from "react";
 
-/** Örnek video (W3Schools — yaygın test kaynağı) */
-const SAMPLE_VIDEO_SRC = "https://www.w3schools.com/html/mov_bbb.mp4";
+const SAMPLE_VIDEO_SRC = "/videos/level-2.2.mp4";
 
 export default function VucudumBanaOzelVideo2Page() {
   const router = useRouter();

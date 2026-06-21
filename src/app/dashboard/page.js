@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import { supabase } from "@/lib/supabase";
+import { readStoredStudentName } from "@/lib/studentSession";
 
 export default function DashboardPage() {
   const [studentName, setStudentName] = useState("Arkadaşım");
@@ -11,39 +11,13 @@ export default function DashboardPage() {
   const [isLevel3Unlocked, setIsLevel3Unlocked] = useState(false);
 
   useEffect(() => {
+    const storedName = readStoredStudentName();
+    if (storedName) {
+      setStudentName(storedName);
+    }
     setIsLevel2Unlocked(localStorage.getItem("level2Unlocked") === "true");
     setIsLevel3Unlocked(localStorage.getItem("seviye3Acik") === "true");
-  }, []);
-
-  useEffect(() => {
-    const fetchLatestStudent = async () => {
-      try {
-        const { data, error } = await supabase
-          .from("students")
-          .select("name")
-          .order("created_at", { ascending: false })
-          .limit(1)
-          .maybeSingle();
-
-        console.log("Veritabanı verisi:", data);
-        if (error) {
-          console.error("Supabase hata:", error);
-        }
-
-        if (!error && data?.name) {
-          setStudentName(data.name);
-        } else {
-          setStudentName("Arkadaşım");
-        }
-      } catch (err) {
-        console.error("Beklenmeyen hata:", err);
-        setStudentName("Arkadaşım");
-      } finally {
-        setIsLoadingName(false);
-      }
-    };
-
-    fetchLatestStudent();
+    setIsLoadingName(false);
   }, []);
 
   return (

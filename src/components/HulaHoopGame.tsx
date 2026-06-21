@@ -523,6 +523,22 @@ export default function HulaHoopGame() {
 
   const handleContinueToDashboard = useCallback(() => {
     localStorage.setItem("level2Unlocked", "true");
+    localStorage.setItem("studentLevel", "2");
+
+    // Supabase'deki level'ı da güncelle
+    const studentId = localStorage.getItem("studentId");
+    if (studentId) {
+      import("@/lib/supabase").then(({ supabase }) => {
+        supabase
+          .from("students")
+          .update({ level: 2 })
+          .eq("id", studentId)
+          .then(({ error }) => {
+            if (error) console.error("Level 2 sync error:", error);
+          });
+      });
+    }
+
     router.push("/dashboard");
   }, [router]);
 
