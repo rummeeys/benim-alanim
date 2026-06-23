@@ -36,7 +36,7 @@ const SCENARIOS = {
     id: "kutu1",
     label: "Senaryo 1",
     text: "Tanımadığın biriyle bir yerde yalnızsın ve seninle oyun oynamak istediğini, ama bu oyunu kimseye söyleyemeyeceğinden bahsediyor. Eğer kimseye söylemez ve benimle bu oyunu oynarsan sana ödül vereceğim diyor. Bu durum karşısında ne yapmalısın?",
-    audioSrc: "/sounds/kutu1.mp3",
+    audioSrc: "/sounds/senaryo-1.m4a",
     options: [
       {
         label: "Kimseye söylemeyeceğimi söyler, onunla oyun oynarım.",
@@ -53,7 +53,7 @@ const SCENARIOS = {
     id: "kutu2",
     label: "Senaryo 2",
     text: 'Oynamaya başlarken o kişi sana şöyle dedi: "Oyunumuz şu, ben sana dokunacağım, sen de bana dokunacaksın. Oyunumuzu bağırmadan, ağlamadan bitirirsek sana istediğin oyuncağı alacağım." Bu durumda ne yaparsın?',
-    audioSrc: "/sounds/kutu2.mp3",
+    audioSrc: "/sounds/senaryo-2.m4a",
     options: [
       {
         label: "İstediğim oyuncağı almak için kabul ederim.",
@@ -70,7 +70,7 @@ const SCENARIOS = {
     id: "kutu3",
     label: "Senaryo 3",
     text: "Harikasın! Teklifi reddettin ve oradan uzaklaşmaya başladın. Peki şimdi bu durumu ne yapmalısın?",
-    audioSrc: "/sounds/kutu3.mp3",
+    audioSrc: "/sounds/senaryo-3.m4a",
     options: [
       {
         label:
@@ -87,7 +87,7 @@ const SCENARIOS = {
     id: "kutu4",
     label: "Senaryo 4",
     text: "Kötü niyetli kişiler bizi kandırmak için oyuncak veya ödül sözü verebilirler. Ama vücudumuz bize özeldir ve kimse bizden bunu saklamamızı isteyemez! Şimdi ne yaparsın?",
-    audioSrc: "/sounds/kutu4.mp3",
+    audioSrc: "/sounds/senaryo-4.m4a",
     options: [
       {
         label: "Yine de oyunu oynamaya devam ederim.",
@@ -103,7 +103,7 @@ const SCENARIOS = {
     id: "kutu5",
     label: "Senaryo 5",
     text: "Çok iyi yaptın, kaçtın! Ama bu tür bir olayı kimseye anlatmazsan kimse sana yardım edemez. Şimdi ne yapmalısın?",
-    audioSrc: "/sounds/kutu5.mp3",
+    audioSrc: null,
     options: [
       {
         label: "Güvendiğim bir yetişkine hemen anlatırım.",
@@ -119,7 +119,7 @@ const SCENARIOS = {
     id: "kutu6",
     label: "Senaryo 6",
     text: "Güvendiğin bir yetişkine anlatmaya karar verdin. Ona giderken kalbin hızlı hızlı atıyor. Ne yaparsın?",
-    audioSrc: "/sounds/kutu6.mp3",
+    audioSrc: "/sounds/senaryo-6.m4a",
     options: [
       {
         label:
@@ -136,7 +136,7 @@ const SCENARIOS = {
     id: "kutu7",
     label: "Senaryo 7",
     text: "Kötü bir durumu içimizde saklamak bizi daha da üzebilir. Güvendiğimiz bir yetişkine anlatmak kahramanlıktır! Şimdi ne yaparsın?",
-    audioSrc: "/sounds/kutu7.mp3",
+    audioSrc: null,
     options: [
       {
         label: "Yine de kimseye söylemem.",
@@ -473,6 +473,14 @@ export default function KahramanlikOyunuPage() {
     }
   }, [gamePhase, hasMounted]);
 
+  const stopAudio = useCallback(() => {
+    if (audioRef.current) {
+      audioRef.current.pause();
+      audioRef.current = null;
+    }
+    setIsPlayingAudio(false);
+  }, []);
+
   const resetGame = useCallback(() => {
     if (audioRef.current) {
       audioRef.current.pause();
@@ -518,6 +526,7 @@ export default function KahramanlikOyunuPage() {
 
   const handleChooseOption = useCallback(
     (nextId) => {
+      stopAudio();
       setModalScenarioId(null);
 
       if (isScenarioId(nextId)) {
@@ -537,7 +546,7 @@ export default function KahramanlikOyunuPage() {
       });
       handleExitReached(nextId);
     },
-    [handleExitReached]
+    [handleExitReached, stopAudio]
   );
 
   const handleNodeClick = useCallback(
@@ -547,6 +556,21 @@ export default function KahramanlikOyunuPage() {
       if (gamePhase !== "playing") return;
       if (nodeId !== activeScenarioId) return;
       setModalScenarioId(nodeId);
+
+      // Popup açılınca sesini otomatik oynat
+      const src = SCENARIOS[nodeId]?.audioSrc;
+      if (src) {
+        if (audioRef.current) {
+          audioRef.current.pause();
+          audioRef.current = null;
+        }
+        const audio = new Audio(src);
+        audioRef.current = audio;
+        audio.addEventListener("ended", () => setIsPlayingAudio(false));
+        audio.addEventListener("pause", () => setIsPlayingAudio(false));
+        setIsPlayingAudio(true);
+        audio.play().catch(() => setIsPlayingAudio(false));
+      }
     },
     [activeScenarioId, gamePhase, unlockedIds]
   );
@@ -627,7 +651,7 @@ export default function KahramanlikOyunuPage() {
             key={modalScenario.id}
             scenario={modalScenario}
             isPlayingAudio={isPlayingAudio}
-            onClose={() => setModalScenarioId(null)}
+            onClose={() => { stopAudio(); setModalScenarioId(null); }}
             onPlayAudio={handlePlayAudio}
             onChoose={handleChooseOption}
           />
