@@ -4,16 +4,16 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useRef, useState } from "react";
 
-const SAMPLE_VIDEO_SRC = "/videos/level-1.mp4";
+const SAMPLE_VIDEO_SRC = "/videos/level-1.mp4"; // Video source 
 
 export default function GuvenliAlanEgitimPage() {
   const router = useRouter();
-  const videoRef = useRef(null);
-  const [hasStarted, setHasStarted] = useState(false);
-  const [videoEnded, setVideoEnded] = useState(false);
+  const videoRef = useRef(null); // .play() methodu çağırmak için 
+  const [hasStarted, setHasStarted] = useState(false); //Video başladı mı? kontrolü
+  const [videoEnded, setVideoEnded] = useState(false); //Video bitti mi kontrolü 
 
   useEffect(() => {
-    router.prefetch("/oyun/guvenli-alan-bulmaca");
+    router.prefetch("/oyun/guvenli-alan-bulmaca"); // oyun sayfasını önceden yüklemek 
   }, [router]);
 
   const handlePlay = useCallback(() => {
@@ -27,7 +27,7 @@ export default function GuvenliAlanEgitimPage() {
   const handleStartClick = useCallback(() => {
     videoRef.current
       ?.play()
-      ?.catch((error) => console.log("Oynatma hatası:", error));
+      ?.catch((error) => console.log("Oynatma hatası:", error)); // otomatik oynatma engellenirse 
   }, []);
 
   const showStartButton = !videoEnded && !hasStarted;
@@ -50,7 +50,7 @@ export default function GuvenliAlanEgitimPage() {
               Güvenli Alan — Eğitim Videosu
             </p>
             <div className="overflow-hidden rounded-3xl bg-white/70 p-2 shadow-xl ring-4 ring-sky-200/80">
-              <video
+              <video // muted: video sesi kapalı, playInline: mobilde tam ekran açılmasın diye, preload: önden yükleme. 
                 ref={videoRef}
                 className="aspect-video w-full rounded-2xl bg-slate-900/5"
                 src={SAMPLE_VIDEO_SRC}
@@ -60,28 +60,28 @@ export default function GuvenliAlanEgitimPage() {
                 preload="metadata"
                 onPlay={handlePlay}
                 onEnded={handleEnded}
-              />
-            </div>
+              /> 
+            </div> 
           </div>
         </div>
 
         <div className="flex min-h-[5.5rem] shrink-0 items-center justify-center px-4 pb-10 pt-2">
-          {showStartButton && (
+          {showStartButton && ( // Video başlamadıysa başlat butonu göster
             <button
               type="button"
               onClick={handleStartClick}
               className="inline-flex items-center justify-center rounded-full bg-emerald-400 px-8 py-4 text-lg font-extrabold text-emerald-950 shadow-lg ring-2 ring-emerald-300/80 transition hover:bg-emerald-300 hover:ring-emerald-200 focus:outline-none focus-visible:ring-4 focus-visible:ring-emerald-500"
             >
-              Oyuna Başla
-            </button>
+              Oyuna Başla 
+            </button> //buton texti
           )}
-          {videoEnded && (
-            <Link
+          {videoEnded && ( // Video bittiyse oyun sayfasına yönlendir
+            <Link //yönlendirme adresi 
               href="/oyun/guvenli-alan-bulmaca"
               className="inline-flex max-w-lg items-center justify-center rounded-full bg-gradient-to-r from-amber-300 via-orange-300 to-rose-300 px-8 py-4 text-center text-base font-extrabold leading-snug text-orange-950 shadow-lg ring-2 ring-amber-200/90 transition hover:scale-[1.02] hover:shadow-xl focus:outline-none focus-visible:ring-4 focus-visible:ring-amber-500 md:text-lg"
-            >
+            > 
               Harika İzledin! Şimdi Oyun Vakti
-            </Link>
+            </Link> //buton texti
           )}
         </div>
       </div>

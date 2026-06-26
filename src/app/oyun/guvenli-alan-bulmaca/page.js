@@ -29,7 +29,7 @@ const CASTLE_WIDTH_CARD_MULT = 1.5;
 const CASTLE_W_BASE_PX =
   CASTLE_WIDTH_CARD_MULT * (ASIDE_WIDTH_PX - CARD_GRID_GAP_PX) / 2;
 
-const SLOT_COUNT = 6;
+const SLOT_COUNT = 6; 
 
 const CARDS = [
   { id: "ev", label: "Ev", emoji: "🏠", correct: true },
@@ -42,9 +42,9 @@ const CARDS = [
   { id: "cop", label: "Çöp Kovası", emoji: "🗑️", correct: false },
   { id: "sokak", label: "Sokak Lambası", emoji: "💡", correct: false },
   { id: "araba", label: "Araba", emoji: "🚗", correct: false },
-];
+]; //Her kartın correct alanı var. Sürükleme bittiğinde doğru mu yanlış mı tek kontrolle yapılır.
 
-function shuffle(array) {
+function shuffle(array) { //kartları rastgele karıştır. 
   const next = [...array];
   for (let i = next.length - 1; i > 0; i--) {
     const j = Math.floor(Math.random() * (i + 1));
@@ -53,7 +53,7 @@ function shuffle(array) {
   return next;
 }
 
-function rectsOverlap(a, b) {
+function rectsOverlap(a, b) { //çarpışma algılama için. 4 koşulun hiçbiri sağlanmıyorsa çarpışma yok demek.
   return !(
     a.right < b.left ||
     a.left > b.right ||
@@ -85,32 +85,32 @@ function PoolCard({
   dropZoneRef,
   onCorrect,
   onWrong,
-  gameComplete,
+  gameComplete, 
   hasFreeSlot,
-}) {
+}) { 
   const nodeRef = useRef(null);
-  const x = useMotionValue(0);
+  const x = useMotionValue(0); //Framer Motion ile kartın konumu kontrol edilir. Yeniden render etmeyi önler. Performans açısından verimli. 
   const y = useMotionValue(0);
   const rotate = useMotionValue(0);
 
-  const snapHome = useCallback(() => {
+  const snapHome = useCallback(() => { //kart yanlış yere bırakıldığında geri döner. 
     animate(x, 0, { type: "spring", stiffness: 520, damping: 38 });
     animate(y, 0, { type: "spring", stiffness: 520, damping: 38 });
   }, [x, y]);
 
-  const handleDragEnd = useCallback(
-    (_event, _info) => {
-      if (gameComplete) return;
-      const node = nodeRef.current;
-      const zone = dropZoneRef.current;
-      if (!node || !zone) {
-        snapHome();
+  const handleDragEnd = useCallback( // sürükleme bittiğinde kontrol yapılır. 
+    (_event, _info) => { 
+      if (gameComplete) return; 
+      const node = nodeRef.current; // kart konumu.
+      const zone = dropZoneRef.current; //kale alanı.
+      if (!node || !zone) { // çakışma yoksa
+        snapHome(); // geri dön.
         return;
       }
 
-      const cardRect = node.getBoundingClientRect();
+      const cardRect = node.getBoundingClientRect(); 
       const zoneRect = zone.getBoundingClientRect();
-      const overlaps = rectsOverlap(cardRect, zoneRect);
+      const overlaps = rectsOverlap(cardRect, zoneRect); 
 
       if (overlaps) {
         if (card.correct) {
@@ -118,13 +118,13 @@ function PoolCard({
             snapHome();
             return;
           }
-          onCorrect(card.id);
+          onCorrect(card.id); 
           return;
         }
-        onWrong();
+        onWrong(); 
         animate(x, 0, { type: "spring", stiffness: 780, damping: 34 });
         animate(y, 0, { type: "spring", stiffness: 780, damping: 34 });
-        animate(rotate, [0, -16, 16, -14, 14, -10, 10, 0], {
+        animate(rotate, [0, -16, 16, -14, 14, -10, 10, 0], { // yanlış hissi. Titreme. 
           duration: 0.5,
           ease: "easeInOut",
         });
@@ -137,7 +137,7 @@ function PoolCard({
       card.correct,
       card.id,
       dropZoneRef,
-      gameComplete,
+      gameComplete, 
       hasFreeSlot,
       onCorrect,
       onWrong,
@@ -151,7 +151,7 @@ function PoolCard({
       ref={nodeRef}
       layout
       style={{ x, y, rotate }}
-      drag={!gameComplete}
+      drag={!gameComplete} 
       dragMomentum={false}
       dragElastic={0.1}
       whileDrag={{
@@ -160,7 +160,7 @@ function PoolCard({
         zIndex: 50,
         boxShadow: "0 12px 24px rgba(15, 23, 42, 0.2)",
       }}
-      whileHover={gameComplete ? {} : { scale: 1.02 }}
+      whileHover={gameComplete ? {} : { scale: 1.02 }} 
       onDragEnd={handleDragEnd}
       exit={{ scale: 0.85, opacity: 0 }}
       transition={{ type: "spring", stiffness: 440, damping: 30 }}
@@ -179,9 +179,9 @@ function PoolCard({
   );
 }
 
-function CastleDropZone({
+function CastleDropZone({ //kale alanı. 
   dropZoneRef,
-  slots,
+  slots, //boş kartlar.
   greenPulse,
   gameComplete,
 }) {
@@ -196,7 +196,7 @@ function CastleDropZone({
       <div className="relative z-10 m-0 box-border flex min-h-0 flex-1 flex-col overflow-hidden rounded-[1.25rem] border-[3px] border-pink-200 bg-gradient-to-b from-sky-200/95 via-indigo-100/90 to-purple-100/95 p-0 shadow-[0_8px_20px_rgba(99,102,241,0.2)] ring-2 ring-amber-100/90 sm:rounded-[1.35rem] sm:border-[4px]">
         {greenPulse > 0 && (
           <motion.div
-            key={greenPulse}
+            key={greenPulse} //slot yerleşirse yeşil ışık yanar.
             initial={{ opacity: 0.85 }}
             animate={{
               opacity: [0.8, 1, 0.7],
@@ -283,13 +283,13 @@ export default function GuvenliAlanBulmacaPage() {
   const dropZoneRef = useRef(null);
   const asideRef = useRef(null);
   const poolGridRef = useRef(null);
-  const [order] = useState(() => shuffle(CARDS));
-  const [slots, setSlots] = useState(() => Array(SLOT_COUNT).fill(null));
-  const [wrongFlash, setWrongFlash] = useState(false);
-  const [wrongBanner, setWrongBanner] = useState(false);
-  const [greenPulse, setGreenPulse] = useState(0);
+  const [order] = useState(() => shuffle(CARDS)); //bileşen ilk mount edildiğinde kartlar karışır.
+  const [slots, setSlots] = useState(() => Array(SLOT_COUNT).fill(null)); //state. boş kartlar.
+  const [wrongFlash, setWrongFlash] = useState(false); //state. yanlış hissi. Titreme.
+  const [wrongBanner, setWrongBanner] = useState(false); //state. zıp! 
+  const [greenPulse, setGreenPulse] = useState(0); //state. yeşil ışık.
   const [layoutNatural, setLayoutNatural] = useState({ gridH: 0, asideH: 0 });
-  const [layoutScale, setLayoutScale] = useState(1);
+  const [layoutScale, setLayoutScale] = useState(1); //hem kartı hem de kaleyi yan yana göstermek için. 
 
   const placedIds = useMemo(() => slots.filter(Boolean), [slots]);
   const placedSet = useMemo(() => new Set(placedIds), [placedIds]);
@@ -301,7 +301,7 @@ export default function GuvenliAlanBulmacaPage() {
     [order, placedSet]
   );
 
-  useEffect(() => {
+  useEffect(() => { 
     setLayoutNatural({ gridH: 0, asideH: 0 });
   }, [poolCards.length]);
 
@@ -358,7 +358,7 @@ export default function GuvenliAlanBulmacaPage() {
     return () => window.removeEventListener("resize", onResize);
   }, [naturalGridH, naturalAsideTotal]);
 
-  useEffect(() => {
+  useEffect(() => { 
     const html = document.documentElement;
     const body = document.body;
     const prevHtml = html.style.overflow;
